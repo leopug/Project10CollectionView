@@ -41,10 +41,15 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
     
     @objc func addNewPerson() {
         let picker = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+        } 
         picker.allowsEditing = true
         picker.delegate = self
         present(picker,animated: true)
     }
+    
+    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
@@ -81,7 +86,11 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
             person.name = newName
             self?.collectionView.reloadData()
         })
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        ac.addAction(UIAlertAction(title: "Delete Image", style: .cancel) {
+            [weak self] _ in
+            self?.people.remove(at: indexPath.item)
+            self?.collectionView.reloadData()
+        })
         
         present(ac, animated: true)
         
