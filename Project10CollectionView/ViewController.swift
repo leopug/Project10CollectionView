@@ -36,9 +36,7 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
                 print("errrroooorr")
             }
         }
-        
-        let notificationCenter = NotificationCenter.default
-        
+                
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add,
                                                            target: self, action: #selector(addNewPerson))
         
