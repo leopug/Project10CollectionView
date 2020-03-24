@@ -15,7 +15,17 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addNewPerson))
+        
+        let notificationCenter = NotificationCenter.default
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add,
+                                                           target: self, action: #selector(addNewPerson))
+        
+        navigationItem.leftBarButtonItem?.isEnabled = false
+        hideAllContent()
+        notificationCenter.addObserver(self, selector: #selector(hideAllContent), name: UIApplication.willResignActiveNotification, object: nil)
+        biometricLogin()
+        
         
         let defaults = UserDefaults.standard
         if let savedPeople = defaults.object(forKey: "people") as? Data {
