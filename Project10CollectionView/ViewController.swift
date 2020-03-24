@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import LocalAuthentication
 
 class ViewController: UICollectionViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -25,6 +26,61 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
                 print("errrroooorr")
             }
         }
+        
+        let notificationCenter = NotificationCenter.default
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add,
+                                                           target: self, action: #selector(addNewPerson))
+        
+        navigationItem.leftBarButtonItem?.isEnabled = false
+        hideAllContent()
+        notificationCenter.addObserver(self, selector: #selector(hideAllContent), name: UIApplication.willResignActiveNotification, object: nil)
+        biometricLogin()
+        
+    }
+    
+    @objc func hideAllContent(){
+        print("passou por aqui")
+        self.view.isHidden = true
+    }
+    
+    @objc func login(){
+        print("passou por aqui again")
+        biometricLogin()
+    }
+    
+    fileprivate func biometricLogin() {
+        let context = LAContext()
+        var error: NSError?
+        
+        if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+            
+            let reason = "Identify Yourself"
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) {
+                [weak self] success, authenticationError in
+                DispatchQueue.main.async {
+                    if success {
+                        self?.unlockPhotos()
+                    } else {
+                        let ac = UIAlertController(title: "Authentication Failed", message: "You can't be verified", preferredStyle: .alert)
+                        ac.addAction(UIAlertAction(title: "OK", style: .default))
+                        self?.present(ac, animated: true)
+                    }
+                }
+            }
+        } else {
+            let ac = UIAlertController(title: "Biometry Unavaliable",
+                                       message: "Your device is not configured for biometric authentication", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+        }
+    }
+    
+    func unlockPhotos() {
+        
+        self.view.isHidden = false
+        navigationItem.leftBarButtonItem?.isEnabled = true
+        
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -58,8 +114,6 @@ class ViewController: UICollectionViewController, UIImagePickerControllerDelegat
         picker.delegate = self
         present(picker,animated: true)
     }
-    
-    
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
